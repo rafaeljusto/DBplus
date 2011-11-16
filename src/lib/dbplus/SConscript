@@ -24,7 +24,7 @@ sys.path.append(basePath + "/install")
 import installer
 
 dbplusName = localLibraryInstall + "/" + os.getcwd().split("/")[-1]
-dbplusLib = env.StaticLibrary(dbplusName, Glob("*.cpp") + Glob("database/*.cpp"))
+dbplusLib = env.StaticLibrary(dbplusName, Glob("*.cpp"))
 
 opts = Variables(basePath + "/conf/dbplus.conf", ARGUMENTS)
 installer.AddOptions(opts)
