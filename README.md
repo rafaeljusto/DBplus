@@ -2,7 +2,8 @@ DBplus
 =======
 
 **DBplus** is a C++ database interface to use the most common database
-clients, such as MySQL <http://mysql.com>.
+clients, such as MySQL <http://mysql.com> and PostgreSQL
+<http://postgresql.org>.
 
 Prerequisits
 ------------
@@ -13,7 +14,8 @@ Prerequisits
   * libboost-system-dev 1.4 - <http://www.boost.org>
   * libboost-test-dev 1.4 - <http://www.boost.org>
   * libboost-date-time-dev 1.4 - <http://www.boost.org>
-  * libmysqlclient-dev 5.1 - <http://www.mysql.com/>
+  * libmysqlclient-dev 5.1 - <http://mysql.com/>
+  * libpq-dev 5 - <http://postgresql.org>
 
   The project was compiled using the above compilers and libraries,
   higher versions should work well.

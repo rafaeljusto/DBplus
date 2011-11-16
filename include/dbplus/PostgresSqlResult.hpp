@@ -17,11 +17,11 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __DB_PLUS_MYSQL_RESULT_HPP__
-#define __DB_PLUS_MYSQL_RESULT_HPP__
+#ifndef __DB_PLUS_POSTGRES_SQL_RESULT_HPP__
+#define __DB_PLUS_POSTGRES_SQL_RESULT_HPP__
 
 extern "C" {
-#include <mysql/mysql.h>
+#include <postgresql/libpq-fe.h>
 }
 
 #include <list>
@@ -35,16 +35,16 @@ extern "C" {
 
 DBPLUS_NS_BEGIN
 
-/*! \class MySqlResult
+/*! \class PostgresSqlResult
  *  \brief Store result of database queries (interface).
  *
  * Base class to store results of a database query.
  */
-class MySqlResult : public Result
+class PostgresSqlResult : public Result
 {
 public:
-	explicit MySqlResult(MYSQL_RES *result);
-	~MySqlResult();
+	explicit PostgresSqlResult(PGresult *result);
+	~PostgresSqlResult();
 
 	unsigned int size() const;
 	bool fetch();
@@ -77,10 +77,11 @@ public:
 	}
 
 private:
-	MYSQL_RES *_result;
+	PGresult *_result;
+	int _currentRow;
 	std::map<string, string> _row;
 };
 
 DBPLUS_NS_END
 
-#endif // __DB_PLUS_MYSQL_RESULT_HPP__
+#endif // __DB_PLUS_POSTGRES_SQL_RESULT_HPP__

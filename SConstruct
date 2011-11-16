@@ -89,7 +89,7 @@ if (verbose == "0"):
 # Libraries
 
 libraries = {
-    "DBPLUS" : ["dbplus", "boost_date_time", "mysqlclient"]
+    "DBPLUS" : ["dbplus", "boost_date_time", "mysqlclient", "pq"]
     }
 
 def getLibraries(names):

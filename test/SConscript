@@ -21,6 +21,6 @@ localLibraries = getLibraries(["DBPLUS"])
 localLibraries.extend(["boost_unit_test_framework"])
 
 test = env.Program("test", 
-                   ["Main.cpp", "MySqlTest.cpp"], 
+                   ["Main.cpp", "MySqlTest.cpp", "PostgresSqlTest.cpp"], 
                    LIBS = localLibraries, LIBPATH = libraryPath)
 env.Test("test.passed", test)
