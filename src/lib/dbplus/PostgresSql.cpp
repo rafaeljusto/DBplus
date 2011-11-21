@@ -155,8 +155,17 @@ unsigned long long PostgresSql::affectedRows()
 
 unsigned long long PostgresSql::lastInsertedId()
 {
-	// TODO! Use currval :
+	// TODO!
+	// http://archives.postgresql.org/pgsql-interfaces/2004-07/msg00035.php
+	
+	// Use currval:
 	// http://www.postgresql.org/docs/current/static/functions-sequence.html
+	
+	// OR
+	
+	// Use PQoidValue:
+	// http://www.postgresql.org/docs/8.2/static/libpq-exec.html
+	
 	return 0;
 }
 
