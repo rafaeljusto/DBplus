@@ -35,7 +35,12 @@ PostgresSqlResult::~PostgresSqlResult()
 
 unsigned int PostgresSqlResult::size() const
 {
-	return boost::lexical_cast<unsigned int>(PQcmdTuples(_result));
+	string size = PQcmdTuples(_result);
+	if (size.empty()) {
+		return 0;
+	}
+
+	return boost::lexical_cast<unsigned int>(size);
 }
 
 bool PostgresSqlResult::fetch()

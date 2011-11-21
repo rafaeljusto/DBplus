@@ -27,15 +27,9 @@
 
 DBPLUS_NS_BEGIN
 
-static void noticeReceiver(void *arg, const PGresult *result)
-{
-#ifdef SHOW_NOTICES
-	printf("%s\n", PQresultErrorField(result, PG_DIAG_MESSAGE_PRIMARY));
-#endif
-}
-
 PostgresSql::PostgresSql() :
-	_transactionMode(AUTO_COMMIT)
+	_transactionMode(AUTO_COMMIT),
+	_affectedRows(0)
 {
 }
 
@@ -86,9 +80,7 @@ void PostgresSql::setTransactionMode(const TransactionMode mode)
 
 	switch(_transactionMode) {
 	case MANUAL_COMMIT:
-		if (_transactionMode != MANUAL_COMMIT) {
-			execute("BEGIN");
-		}
+		execute("BEGIN");
 		break;
 	case AUTO_COMMIT:
 		commit();
@@ -144,6 +136,13 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 		                        PQresultErrorMessage(result));
 	}
 
+	string affectedRows = PQcmdTuples(result);
+	if (affectedRows.empty()) {
+		_affectedRows = 0;
+	} else {
+		_affectedRows = boost::lexical_cast<unsigned int>(affectedRows);
+	}
+
 	// TODO: result mode
 
 	return std::shared_ptr<Result>(new PostgresSqlResult(result));
@@ -151,9 +150,7 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 
 unsigned long long PostgresSql::affectedRows()
 {
-	// TODO: Maybe in postgres the affected rows is always stored in the
-	// result set!
-	return 0;
+	return _affectedRows;
 }
 
 unsigned long long PostgresSql::lastInsertedId()
@@ -161,6 +158,13 @@ unsigned long long PostgresSql::lastInsertedId()
 	// TODO! Use currval :
 	// http://www.postgresql.org/docs/current/static/functions-sequence.html
 	return 0;
+}
+
+void PostgresSql::noticeReceiver(void *arg, const PGresult *result)
+{
+#ifdef SHOW_NOTICES
+	printf("%s\n", PQresultErrorField(result, PG_DIAG_MESSAGE_PRIMARY));
+#endif
 }
 
 DBPLUS_NS_END

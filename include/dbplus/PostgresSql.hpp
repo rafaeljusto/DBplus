@@ -63,8 +63,11 @@ public:
 	unsigned long long lastInsertedId();
 
 private:
+	static void noticeReceiver(void *arg, const PGresult *result);
+
 	PGconn *_postgres;
 	TransactionMode _transactionMode;
+	unsigned int _affectedRows;
 };
 
 DBPLUS_NS_END

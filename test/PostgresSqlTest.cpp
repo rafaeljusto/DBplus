@@ -78,9 +78,8 @@ BOOST_AUTO_TEST_CASE(mustExecuteWithoutErrors)
 	BOOST_CHECK_NO_THROW(postgres.execute(sql));
 }
 
-BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
+void createDatabaseAndTable(PostgresSql &postgres)
 {
-	PostgresSql postgres;
 	postgres.connect("dbplus", "root", "abc123", "127.0.0.1");
 
 	string sql = "DROP TABLE IF EXISTS test";
@@ -89,13 +88,19 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	sql = "CREATE TABLE test (id SERIAL PRIMARY KEY, "
 		"value VARCHAR(255), date TIMESTAMP)";
 	postgres.execute(sql);
+}
 
-	sql = "INSERT INTO test(value, date) "
+BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
+{
+	PostgresSql postgres;
+
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
+
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	postgres.execute(sql);
 
-	// For now this feature is disabled
-	//BOOST_CHECK_EQUAL(postgres.affectedRows(), 1);
+	BOOST_CHECK_EQUAL(postgres.affectedRows(), 1);
 
 	sql = "SELECT id, value, date FROM test";
 	shared_ptr<PostgresSqlResult> result =
@@ -114,25 +119,15 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
+BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 {
 	PostgresSql postgres;
-	postgres.connect("dbplus", "root", "abc123", "127.0.0.1");
 
-	string sql = "DROP TABLE IF EXISTS test";
-	postgres.execute(sql);
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
 
-	sql = "CREATE TABLE test (id SERIAL PRIMARY KEY, "
-		"value VARCHAR(255), date TIMESTAMP)";
-	postgres.execute(sql);
-
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	postgres.execute(sql);
-
-	sql = "SELECT id, value, date FROM test";
-	shared_ptr<PostgresSqlResult> result =
-		std::dynamic_pointer_cast<PostgresSqlResult>(postgres.execute(sql));
 
 	class Object {
 	public:
@@ -142,6 +137,10 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 		string value;
 		ptime date;
 	};
+
+	sql = "SELECT id, value, date FROM test";
+	shared_ptr<PostgresSqlResult> result =
+		std::dynamic_pointer_cast<PostgresSqlResult>(postgres.execute(sql));
 
 	while (result->fetch()) {
 		auto object = result->get<Object>([](map<string, string> row) {
@@ -156,13 +155,34 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 		BOOST_CHECK_EQUAL(object.value, "This is a test");
 		BOOST_CHECK_EQUAL(object.date, time_from_string("2011-11-11 11:11:11"));
 	}
+}
+
+BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
+{
+	PostgresSql postgres;
+
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
+
+	string sql = "INSERT INTO test(value, date) "
+		"VALUES ('This is a test', '2011-11-11 11:11:11')";
+	postgres.execute(sql);
 
 	sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is another test', '2011-12-12 11:11:11')";
 	postgres.execute(sql);
 
+	class Object {
+	public:
+		Object() : id(0), value("") {}
+
+		int id;
+		string value;
+		ptime date;
+	};
+
 	sql = "SELECT id, value, date FROM test ORDER BY id";
-	result = std::dynamic_pointer_cast<PostgresSqlResult>(postgres.execute(sql));
+	shared_ptr<PostgresSqlResult> result = 
+		std::dynamic_pointer_cast<PostgresSqlResult>(postgres.execute(sql));
 
 	BOOST_CHECK_EQUAL(result->size(), 2);
 
@@ -188,18 +208,11 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 BOOST_AUTO_TEST_CASE(mustRollbackData)
 {
 	PostgresSql postgres;
-	postgres.connect("dbplus", "root", "abc123", "127.0.0.1");
 
-	string sql = "DROP TABLE IF EXISTS test";
-	postgres.execute(sql);
-
-	sql = "CREATE TABLE test (id SERIAL PRIMARY KEY, "
-		"value VARCHAR(255), date TIMESTAMP)";
-	postgres.execute(sql);
-
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
 	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(PostgresSql::MANUAL_COMMIT));
 
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	postgres.execute(sql);
 
@@ -209,25 +222,17 @@ BOOST_AUTO_TEST_CASE(mustRollbackData)
 	shared_ptr<PostgresSqlResult> result =
 		std::dynamic_pointer_cast<PostgresSqlResult>(postgres.execute(sql));
 
-	// TODO: Rollback is not working!
-	//BOOST_CHECK_EQUAL(result->size(), 0);
+	BOOST_CHECK_EQUAL(result->size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(mustCommitData)
 {
 	PostgresSql postgres;
-	postgres.connect("dbplus", "root", "abc123", "127.0.0.1");
 
-	string sql = "DROP TABLE IF EXISTS test";
-	postgres.execute(sql);
-
-	sql = "CREATE TABLE test (id SERIAL PRIMARY KEY, "
-		"value VARCHAR(255), date TIMESTAMP)";
-	postgres.execute(sql);
-
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
 	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(PostgresSql::AUTO_COMMIT));
 
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	postgres.execute(sql);
 

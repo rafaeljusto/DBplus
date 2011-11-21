@@ -77,19 +77,25 @@ BOOST_AUTO_TEST_CASE(mustExecuteWithoutErrors)
 	BOOST_CHECK_NO_THROW(mysql.execute(sql));
 }
 
-BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
+void createDatabaseAndTable(MySql &mysql)
 {
-	MySql mysql;
 	mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
 
 	string sql = "DROP TABLE IF EXISTS test";
 	mysql.execute(sql);
 
 	sql = "CREATE TABLE test (id INT(11) PRIMARY KEY AUTO_INCREMENT, "
-		"value VARCHAR(255), date DATETIME)";
+		"value VARCHAR(255), date DATETIME) ENGINE=InnoDB";
 	mysql.execute(sql);
+}
 
-	sql = "INSERT INTO test(value, date) "
+BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
+{
+	MySql mysql;
+	
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
+
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	mysql.execute(sql);
 
@@ -112,25 +118,15 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
+BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 {
 	MySql mysql;
-	mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
 
-	string sql = "DROP TABLE IF EXISTS test";
-	mysql.execute(sql);
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
 
-	sql = "CREATE TABLE test (id INT(11) PRIMARY KEY AUTO_INCREMENT, "
-		"value VARCHAR(255), date DATETIME)";
-	mysql.execute(sql);
-
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	mysql.execute(sql);
-
-	sql = "SELECT id, value, date FROM test";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
 
 	class Object {
 	public:
@@ -140,6 +136,10 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 		string value;
 		ptime date;
 	};
+
+	sql = "SELECT id, value, date FROM test";
+	shared_ptr<MySqlResult> result = 
+		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
 
 	while (result->fetch()) {
 		auto object = result->get<Object>([](map<string, string> row) {
@@ -154,13 +154,34 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 		BOOST_CHECK_EQUAL(object.value, "This is a test");
 		BOOST_CHECK_EQUAL(object.date, time_from_string("2011-11-11 11:11:11"));
 	}
+}
+
+BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
+{
+	MySql mysql;
+
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
+
+	string sql = "INSERT INTO test(value, date) "
+		"VALUES ('This is a test', '2011-11-11 11:11:11')";
+	mysql.execute(sql);
 
 	sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is another test', '2011-12-12 11:11:11')";
 	mysql.execute(sql);
 
+	class Object {
+	public:
+		Object() : id(0), value("") {}
+
+		int id;
+		string value;
+		ptime date;
+	};
+
 	sql = "SELECT id, value, date FROM test ORDER BY id";
-	result = std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<MySqlResult> result = 
+		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
 
 	BOOST_CHECK_EQUAL(result->size(), 2);
 
@@ -186,18 +207,11 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildObjects)
 BOOST_AUTO_TEST_CASE(mustRollbackData)
 {
 	MySql mysql;
-	mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
-
-	string sql = "DROP TABLE IF EXISTS test";
-	mysql.execute(sql);
-
-	sql = "CREATE TABLE test (id INT(11) PRIMARY KEY AUTO_INCREMENT, "
-		"value VARCHAR(255), date DATETIME) ENGINE=InnoDB";
-	mysql.execute(sql);
-
+	
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
 	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(MySql::MANUAL_COMMIT));
 
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	mysql.execute(sql);
 
@@ -213,18 +227,11 @@ BOOST_AUTO_TEST_CASE(mustRollbackData)
 BOOST_AUTO_TEST_CASE(mustCommitData)
 {
 	MySql mysql;
-	mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
 
-	string sql = "DROP TABLE IF EXISTS test";
-	mysql.execute(sql);
-
-	sql = "CREATE TABLE test (id INT(11) PRIMARY KEY AUTO_INCREMENT, "
-		"value VARCHAR(255), date DATETIME) ENGINE=InnoDB";
-	mysql.execute(sql);
-
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
 	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(MySql::AUTO_COMMIT));
 
-	sql = "INSERT INTO test(value, date) "
+	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
 	mysql.execute(sql);
 
