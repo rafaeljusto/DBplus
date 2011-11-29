@@ -20,8 +20,12 @@ Prerequisits
   The project was compiled using the above compilers and libraries,
   higher versions should work well.
 
-  To run the unit tests install the mysql-server, using abc123 as root
-  password and create the "dbplus" database.
+  To run the unit tests:
+
+  * install mysql-server package (MySQL)
+  * install postgresql package (PostgreSQL)
+  * create a root user with the password "abc123" on each database server
+  * create a database with the name "dbplus" on each database server
 
 Installation
 ------------
