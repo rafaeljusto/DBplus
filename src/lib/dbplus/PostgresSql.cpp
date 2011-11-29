@@ -28,7 +28,7 @@
 DBPLUS_NS_BEGIN
 
 PostgresSql::PostgresSql() :
-	_transactionMode(AUTO_COMMIT),
+	_transactionMode(TransactionMode::AUTO_COMMIT),
 	_affectedRows(0)
 {
 }
@@ -74,21 +74,21 @@ void PostgresSql::disconnect()
 	PQfinish(_postgres);
 }
 
-void PostgresSql::setTransactionMode(const TransactionMode mode)
+void PostgresSql::setTransactionMode(const TransactionMode::Value mode)
 {
 	_transactionMode = _transactionMode != mode ? mode : _transactionMode;
 
 	switch(_transactionMode) {
-	case MANUAL_COMMIT:
+	case TransactionMode::MANUAL_COMMIT:
 		execute("BEGIN");
 		break;
-	case AUTO_COMMIT:
+	case TransactionMode::AUTO_COMMIT:
 		commit();
 		break;
 	}
 }
 
-PostgresSql::TransactionMode PostgresSql::getTransactionMode() const
+PostgresSql::TransactionMode::Value PostgresSql::getTransactionMode() const
 {
 	return _transactionMode;
 }
@@ -97,7 +97,7 @@ void PostgresSql::commit()
 {
 	execute("COMMIT");
 
-	if (_transactionMode == MANUAL_COMMIT) {
+	if (_transactionMode == TransactionMode::MANUAL_COMMIT) {
 		execute("BEGIN");
 	}
 }
@@ -106,7 +106,7 @@ void PostgresSql::rollback()
 {
 	execute("ROLLBACK");
 
-	if (_transactionMode == MANUAL_COMMIT) {
+	if (_transactionMode == TransactionMode::MANUAL_COMMIT) {
 		execute("BEGIN");
 	}
 }
@@ -120,7 +120,7 @@ string PostgresSql::escape(const string &value)
 }
 
 std::shared_ptr<Result> PostgresSql::execute(const string &query,
-                                             const ResultMode resultMode)
+                                             const ResultMode::Value resultMode)
 {
 	PGresult *result = PQexec(_postgres, query.c_str());
 	if (result == NULL) {

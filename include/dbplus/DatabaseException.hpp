@@ -37,6 +37,8 @@ DBPLUS_NS_BEGIN
 class DatabaseException : public std::exception
 {
 public:
+	/*! Possible error codes of the exception.
+	 */
 	enum Code {
 		CONNECTION_ERROR,
 		EXECUTION_ERROR,
@@ -46,13 +48,28 @@ public:
 		UNKNOW_KEY_ERROR
 	};
 
+	/*! Contructor.
+	 *
+	 * @param code Error code detected
+	 * @param file Source file where the exception was threw
+	 * @param function Name of the function in the source file
+	 * @param line Number of the line in the source file
+	 * @param message Error message to be show
+	 */
 	DatabaseException(const Code code, 
 	                  const string &file, 
 	                  const string &function, 
 	                  const int line, 
 	                  const string &message) throw();
+
+	/*! Destructor.
+	 */
 	~DatabaseException() throw();
 
+	/*! Returns error message.
+	 *
+	 * @return Error message
+	 */
 	const char* what() const throw();
 
 private:

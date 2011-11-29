@@ -43,14 +43,43 @@ DBPLUS_NS_BEGIN
 class PostgresSqlResult : public Result
 {
 public:
+	/*! Constructor receives the raw postgreSQL structure already
+	 * containing the result.
+	 */
 	explicit PostgresSqlResult(PGresult *result);
+
+	/*! Release memory from raw PostgreSQL structures.
+	 */
 	~PostgresSqlResult();
 
+	/*! Returns the number of rows found in result.
+	 *
+	 * @return Number of rows in result
+	 */
 	unsigned int size() const;
+
+	/*! Move to the next row.
+	 *
+	 * @return True if there's a next row, false otherwise
+	 */
 	bool fetch();
 	
+	/*! Returns the value of a given column name.
+	 *
+	 * @param key Column name
+	 * @return column Value in the current row
+	 * @throw DatabaseException on error
+	 */
 	string get(const string &key) const;
 	
+	/*! Find and convert the column data into some type.
+	 *
+	 * @tparam T Type of the data that is going to be returned
+	 * @param key Column name
+	 * @param converter Method that converts into the desired type
+	 * @return Column value in the desired format
+	 * @throw DatabaseException on error
+	 */
 	template<class T> 
 	T get(const string &key, T (*converter)(const string&) = 
 	      boost::lexical_cast<T>) const
@@ -58,12 +87,26 @@ public:
 		return converter(get(key));
 	}
 
+	/*! Converts an entire line in one object.
+	 *
+	 * @tparam T Type of the object that represents the result row
+	 * @param converter Method that converts into the desired type
+	 * @return Desired object that represents the result row
+	 * @throw DatabaseException on error
+	 */
 	template<class T> 
 	T get(T (*converter)(std::map<string, string>)) const
 	{
 		return converter(_row);
 	}
 
+	/*! Converts all rows into a list of objects.
+	 *
+	 * @tparam T Type of the object that represents the result row
+	 * @param converter Method that converts into the desired type
+	 * @return List of the desired object that represents the result set
+	 * @throw DatabaseException on error
+	 */
 	template<class T> 
 	std::list<T> getAll(T (*converter)(std::map<string, string>))
 	{

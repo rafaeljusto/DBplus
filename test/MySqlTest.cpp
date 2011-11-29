@@ -207,9 +207,11 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 BOOST_AUTO_TEST_CASE(mustRollbackData)
 {
 	MySql mysql;
-	
+
 	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
-	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(MySql::MANUAL_COMMIT));
+
+	auto mode = MySql::TransactionMode::MANUAL_COMMIT;
+	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(mode));
 
 	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
@@ -229,7 +231,9 @@ BOOST_AUTO_TEST_CASE(mustCommitData)
 	MySql mysql;
 
 	BOOST_CHECK_NO_THROW(createDatabaseAndTable(mysql));
-	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(MySql::AUTO_COMMIT));
+
+	auto mode = MySql::TransactionMode::AUTO_COMMIT;
+	BOOST_CHECK_NO_THROW(mysql.setTransactionMode(mode));
 
 	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";

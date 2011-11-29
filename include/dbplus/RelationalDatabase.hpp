@@ -39,37 +39,120 @@ class Result;
 class RelationalDatabase
 {
 public:
-	enum TransactionMode {
-		AUTO_COMMIT,
-		MANUAL_COMMIT
+	/*! \class TransactionMode
+	 *  \brief Possible transaction modes
+	 *
+	 * In AUTO_COMMIT mode, every transaction is persisted
+	 * on-the-fly. In MANUAL_COMMIT the transactions are only persisted
+	 * when the commit method is called.
+	 */
+	class TransactionMode
+	{
+	public:
+		/*! List all transaction modes
+		 */
+		enum Value {
+			AUTO_COMMIT,
+			MANUAL_COMMIT
+		};
 	};
 
-	enum ResultMode {
-		// Store all result data in the server
-		USE_RESULT,
-		// Store all result data in the client
-		STORE_RESULT
+	/*! \class ResultMode
+	 *  \brief Possible result stote modes
+	 *
+	 * To avoid memory issues there are two possible result modes. The
+	 * USE_RESULT mode store all result data in server side. The
+	 * STORE_RESULT mode brings all result data to client side.
+	 */
+	class ResultMode
+	{
+	public:
+		/*! List all result modes
+		 */
+		enum Value {
+			USE_RESULT,
+			STORE_RESULT
+		};
 	};
 
+	/*! Connect to the database and keeps connected until the disconnect
+	 * method is called.
+	 *
+	 * @param database Name of the database
+	 * @param user Username used for connection
+	 * @param password Username's password
+	 * @param server Hostname or IP address of the database
+	 * @param port Database server's port
+	 * @see disconnect
+	 */
 	virtual void connect(const string &database, 
 	                     const string &user, 
 	                     const string &password, 
 	                     const string &server, 
 	                     const unsigned int port = 3306) = 0;
+
+	/*! Disconnect from the database
+	 */
 	virtual void disconnect() = 0;
 
-	virtual void setTransactionMode(const TransactionMode mode) = 0;
-	virtual TransactionMode getTransactionMode() const = 0;
+	/*! Sets transaction mode. Possible values are defined in
+	 * RelationalDatabase::TransactionMode::Value.
+	 *
+	 * @param mode Transaction mode
+	 */
+	virtual void setTransactionMode(const TransactionMode::Value mode) = 0;
 
+	/*! Gets transaction mode. Possible values are defined in
+	 * RelationalDatabase::TransactionMode::Value.
+	 *
+	 * @return Transaction mode
+	 */
+	virtual TransactionMode::Value getTransactionMode() const = 0;
+
+	/*! In transaction mode MANUAL_COMMIT, this method is responsable
+	 * for persisting every query made since the last call of the
+	 * methods commit or rollback.
+	 *
+	 * @see rollback
+	 */
 	virtual void commit() = 0;
+
+	/*! In transaction mode MANUAL_COMMIT, this method is responsable
+	 * for rolling back all changes made since the last call of the
+	 * methods commit or rollback.
+	 *
+	 * @see commit
+	 */
 	virtual void rollback() = 0;
 
+	/*! To avoid SQL injection over database queries, this method
+	 * removes all dangerous characters.
+	 *
+	 * @param value String to be escaped
+	 * @return Value escaped
+	 */
 	virtual string escape(const string &value) = 0;
 
+	/*! Execute a SQL query.
+	 *
+	 * @param query SQL query
+	 * @param resultMode Define where the result is going to be stored
+	 * @return Result object with all the dataset
+	 */
 	virtual std::shared_ptr<Result> 
-	execute(const string &query, const ResultMode resultMode = STORE_RESULT) = 0;
+	execute(const string &query, 
+	        const ResultMode::Value resultMode = ResultMode::STORE_RESULT) = 0;
 
+	/*! Returns the number of rows effected by the last query.
+	 *
+	 * @return Number of rows effected
+	 */
 	virtual unsigned long long affectedRows() = 0;
+
+	/*! Returns the last inserted id due to SQL insert commands.
+	 *
+	 * @return Last inserted id
+	 */
 	virtual unsigned long long lastInsertedId() = 0;
 };
 

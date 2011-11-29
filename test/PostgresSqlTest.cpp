@@ -210,7 +210,9 @@ BOOST_AUTO_TEST_CASE(mustRollbackData)
 	PostgresSql postgres;
 
 	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
-	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(PostgresSql::MANUAL_COMMIT));
+
+	auto mode = PostgresSql::TransactionMode::MANUAL_COMMIT;
+	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(mode));
 
 	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";
@@ -230,7 +232,9 @@ BOOST_AUTO_TEST_CASE(mustCommitData)
 	PostgresSql postgres;
 
 	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
-	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(PostgresSql::AUTO_COMMIT));
+
+	auto mode = PostgresSql::TransactionMode::AUTO_COMMIT;
+	BOOST_CHECK_NO_THROW(postgres.setTransactionMode(mode));
 
 	string sql = "INSERT INTO test(value, date) "
 		"VALUES ('This is a test', '2011-11-11 11:11:11')";

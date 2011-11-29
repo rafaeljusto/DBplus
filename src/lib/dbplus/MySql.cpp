@@ -24,7 +24,7 @@
 DBPLUS_NS_BEGIN
 
 MySql::MySql() :
-	_transactionMode(AUTO_COMMIT)
+	_transactionMode(TransactionMode::AUTO_COMMIT)
 {
 }
 
@@ -64,19 +64,19 @@ void MySql::disconnect()
 	mysql_close(&_mysql);
 }
 
-void MySql::setTransactionMode(const TransactionMode mode)
+void MySql::setTransactionMode(const TransactionMode::Value mode)
 {
 	_transactionMode = _transactionMode != mode ? mode : _transactionMode;
 
 	switch(_transactionMode) {
-	case MANUAL_COMMIT:
+	case TransactionMode::MANUAL_COMMIT:
 		if (mysql_autocommit(&_mysql, 0) != 0) {
 			throw DatabaseException(DatabaseException::STATE_CHANGE_ERROR, 
 			                        __FILE__, __FUNCTION__, __LINE__, 
 			                        mysql_error(&_mysql));
 		}
 		break;
-	case AUTO_COMMIT:
+	case TransactionMode::AUTO_COMMIT:
 		if (mysql_autocommit(&_mysql, 1) != 0) {
 			throw DatabaseException(DatabaseException::STATE_CHANGE_ERROR, 
 			                        __FILE__, __FUNCTION__, __LINE__, 
@@ -86,7 +86,7 @@ void MySql::setTransactionMode(const TransactionMode mode)
 	}
 }
 
-MySql::TransactionMode MySql::getTransactionMode() const
+MySql::TransactionMode::Value MySql::getTransactionMode() const
 {
 	return _transactionMode;
 }
@@ -117,7 +117,7 @@ string MySql::escape(const string &value)
 }
 
 std::shared_ptr<Result> MySql::execute(const string &query, 
-                                       const ResultMode resultMode)
+                                       const ResultMode::Value resultMode)
 {
 	if (mysql_real_query(&_mysql, query.c_str(), query.size()) != 0) {
 		throw DatabaseException(DatabaseException::EXECUTION_ERROR, 
@@ -132,10 +132,10 @@ std::shared_ptr<Result> MySql::execute(const string &query,
 	MYSQL_RES *result = NULL;
 	
 	switch(resultMode) {
-	case USE_RESULT:
+	case ResultMode::USE_RESULT:
 		result = mysql_use_result(&_mysql);
 		break;
-	case STORE_RESULT:
+	case ResultMode::STORE_RESULT:
 		result = mysql_store_result(&_mysql);
 		break;
 	}

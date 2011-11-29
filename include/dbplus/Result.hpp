@@ -36,8 +36,23 @@ DBPLUS_NS_BEGIN
 class Result
 {
 public:
+	/*! Returns the number of rows found in result.
+	 *
+	 * @return Number of rows in result
+	 */
 	virtual unsigned int size() const = 0;
+
+	/*! Move to the next row.
+	 *
+	 * @return True if there's a next row, false otherwise
+	 */
 	virtual bool fetch() = 0;
+
+	/*! Returns the value of a given column name.
+	 *
+	 * @param key Column name
+	 * @return column Value in the current row
+	 */
 	virtual string get(const string &key) const = 0;
 };
 
