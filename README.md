@@ -39,7 +39,87 @@ Installation
 Usage
 -----
 
-  // TODO
+  Source code (using MySQL):
+
+    #include <iostream>
+    #include <list>
+    #include <map>
+    #include <memory>
+    #include <string>
+
+    #include <boost/date_time/posix_time/posix_time.hpp>
+    #include <boost/lexical_cast.hpp>
+
+    #include <dbplus/MySql.hpp>
+    #include <dbplus/MySqlResult.hpp>
+
+    class Object
+    {
+    public:
+      Object() : _id(0), _value("") {}
+
+      void print()
+      {
+        std::cout << "-----------------" << std::endl;
+        std::cout << "Id: "    << _id    << std::endl;
+        std::cout << "Value: " << _value << std::endl;
+        std::cout << "Date: "  << _date  << std::endl;
+      }
+
+      void setId(const int id)
+      {
+        _id = id;
+      }
+
+      void setValue(const std::string &value)
+      {
+        _value = value;
+      }
+
+      void setDate(const  boost::posix_time::ptime &date)
+      {
+        _date = date;
+      }
+
+    private:
+      int _id;
+      std::string _value;
+      boost::posix_time::ptime _date;
+    };
+
+    int main()
+    {
+      dbplus::MySql mysql;
+      mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
+
+      std::string sql = "SELECT id, value, date FROM test";
+      std::shared_ptr<dbplus::MySqlResult> result = 
+        std::dynamic_pointer_cast<dbplus::MySqlResult>(mysql.execute(sql));
+
+      std::list<Object> objects = 
+        result->getAll<Object>([](std::map<string, string> row) {
+          Object object;
+          object.setId(boost::lexical_cast<int>(row["id"]));
+          object.setValue(row["value"]);
+          object.setDate(boost::posix_time::time_from_string(row["date"]));
+          return object;
+        });
+
+      for (Object object: objects) {
+        object.print();
+      }
+    }
+
+  Compiling:
+
+    g++ -std=c++0x test.cpp -o test -ldbplus -lboost_date_time -lmysqlclient -lpq
+
+  Output:
+
+    -----------------
+    Id: 1
+    Value: This is a test
+    Date: 2011-Nov-11 11:11:11
 
 Contact
 -------
