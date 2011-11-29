@@ -29,6 +29,11 @@ using std::string;
 
 DBPLUS_NS_BEGIN
 
+/*! \class DatabaseException
+ *  \brief DBplus exception class
+ *
+ * Class created to be throw whenever a fatal error occurs.
+ */
 class DatabaseException : public std::exception
 {
 public:
