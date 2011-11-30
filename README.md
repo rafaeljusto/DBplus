@@ -116,7 +116,7 @@ Usage
 
   Compiling:
 
-    g++ -std=c++0x test.cpp -o test -ldbplus -lboost_date_time -lmysqlclient -lpq
+    g++ -std=c++0x test.cpp -o test -ldbplus -lboost_date_time -lmysqlclient
 
   Output:
 
