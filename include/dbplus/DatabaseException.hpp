@@ -27,6 +27,9 @@
 
 using std::string;
 
+#define DATABASE_EXCEPTION(error, message) \
+	DatabaseException(error, __FILE__, __FUNCTION__, __LINE__, message)
+
 DBPLUS_NS_BEGIN
 
 /*! \class DatabaseException

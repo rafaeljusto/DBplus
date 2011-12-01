@@ -52,16 +52,14 @@ void PostgresSql::connect(const string &database,
 
 	_postgres = PQconnectdb(connection.c_str());
 	if (_postgres == NULL) {
-		throw DatabaseException(DatabaseException::CONNECTION_ERROR,
-		                        __FILE__, __FUNCTION__, __LINE__,
-		                        "Could not allocate memory for "
-		                        "database connection");
+		throw DATABASE_EXCEPTION(DatabaseException::CONNECTION_ERROR,
+		                         "Could not allocate memory for "
+		                         "database connection");
 	}
 
 	if (PQstatus(_postgres) == CONNECTION_BAD) {
-		throw DatabaseException(DatabaseException::CONNECTION_ERROR,
-		                        __FILE__, __FUNCTION__, __LINE__,
-		                        PQerrorMessage(_postgres));
+		throw DATABASE_EXCEPTION(DatabaseException::CONNECTION_ERROR,
+		                         PQerrorMessage(_postgres));
 	}
 
 	PQsetNoticeReceiver(_postgres, noticeReceiver, NULL);
@@ -124,16 +122,14 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 {
 	PGresult *result = PQexec(_postgres, query.c_str());
 	if (result == NULL) {
-		throw DatabaseException(DatabaseException::RESULT_ERROR,
-		                        __FILE__, __FUNCTION__, __LINE__,
-		                        PQerrorMessage(_postgres));
+		throw DATABASE_EXCEPTION(DatabaseException::RESULT_ERROR,
+		                         PQerrorMessage(_postgres));
 	}
 
 	if (PQresultStatus(result) != PGRES_TUPLES_OK &&
 	    PQresultStatus(result) != PGRES_COMMAND_OK) {
-		throw DatabaseException(DatabaseException::EXECUTION_ERROR,
-		                        __FILE__, __FUNCTION__, __LINE__,
-		                        PQresultErrorMessage(result));
+		throw DATABASE_EXCEPTION(DatabaseException::EXECUTION_ERROR,
+		                         PQresultErrorMessage(result));
 	}
 
 	string affectedRows = PQcmdTuples(result);

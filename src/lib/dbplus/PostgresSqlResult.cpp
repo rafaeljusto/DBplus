@@ -65,9 +65,8 @@ string PostgresSqlResult::get(const string &key) const
 {
 	auto result = _row.find(key);
 	if (result == _row.end()) {
-		throw DatabaseException(DatabaseException::UNKNOW_KEY_ERROR,
-		                        __FILE__, __FUNCTION__, __LINE__,
-		                        "Column " + key + " not found in result set");
+		throw DATABASE_EXCEPTION(DatabaseException::UNKNOW_KEY_ERROR,
+		                         "Column " + key + " not found in result set");
 	}
 
 	return result->second;

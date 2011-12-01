@@ -40,9 +40,8 @@ void MySql::connect(const string &database,
                     const unsigned int port)
 {
 	if (mysql_init(&_mysql) == NULL) {
-		throw DatabaseException(DatabaseException::CONNECTION_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::CONNECTION_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 
 	if (mysql_real_connect(&_mysql,
@@ -51,9 +50,8 @@ void MySql::connect(const string &database,
 	                       password.c_str(), 
 	                       database.c_str(), 
 	                       port, NULL, 0) != &_mysql) {
-		throw DatabaseException(DatabaseException::CONNECTION_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::CONNECTION_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 
 	setTransactionMode(_transactionMode);
@@ -71,16 +69,14 @@ void MySql::setTransactionMode(const TransactionMode::Value mode)
 	switch(_transactionMode) {
 	case TransactionMode::MANUAL_COMMIT:
 		if (mysql_autocommit(&_mysql, 0) != 0) {
-			throw DatabaseException(DatabaseException::STATE_CHANGE_ERROR, 
-			                        __FILE__, __FUNCTION__, __LINE__, 
-			                        mysql_error(&_mysql));
+			throw DATABASE_EXCEPTION(DatabaseException::STATE_CHANGE_ERROR, 
+			                         mysql_error(&_mysql));
 		}
 		break;
 	case TransactionMode::AUTO_COMMIT:
 		if (mysql_autocommit(&_mysql, 1) != 0) {
-			throw DatabaseException(DatabaseException::STATE_CHANGE_ERROR, 
-			                        __FILE__, __FUNCTION__, __LINE__, 
-			                        mysql_error(&_mysql));
+			throw DATABASE_EXCEPTION(DatabaseException::STATE_CHANGE_ERROR, 
+			                         mysql_error(&_mysql));
 		}
 		break;
 	}
@@ -94,18 +90,16 @@ MySql::TransactionMode::Value MySql::getTransactionMode() const
 void MySql::commit()
 {
 	if (mysql_commit(&_mysql) != 0) {
-		throw DatabaseException(DatabaseException::TRANSACTION_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::TRANSACTION_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 }
 
 void MySql::rollback()
 {
 	if (mysql_rollback(&_mysql) != 0) {
-		throw DatabaseException(DatabaseException::TRANSACTION_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::TRANSACTION_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 }
 
@@ -120,9 +114,8 @@ std::shared_ptr<Result> MySql::execute(const string &query,
                                        const ResultMode::Value resultMode)
 {
 	if (mysql_real_query(&_mysql, query.c_str(), query.size()) != 0) {
-		throw DatabaseException(DatabaseException::EXECUTION_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::EXECUTION_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 
 	if (mysql_field_count(&_mysql) == 0) {
@@ -141,9 +134,8 @@ std::shared_ptr<Result> MySql::execute(const string &query,
 	}
 
 	if (result == NULL) {
-		throw DatabaseException(DatabaseException::RESULT_ERROR, 
-		                        __FILE__, __FUNCTION__, __LINE__, 
-		                        mysql_error(&_mysql));
+		throw DATABASE_EXCEPTION(DatabaseException::RESULT_ERROR, 
+		                         mysql_error(&_mysql));
 	}
 
 	return std::shared_ptr<Result>(new MySqlResult(result));
