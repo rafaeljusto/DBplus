@@ -17,6 +17,7 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <dbplus/Binary.hpp>
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySqlResult.hpp>
 
@@ -47,18 +48,40 @@ bool MySqlResult::fetch()
 	}
 
 	unsigned int numberOfFields = mysql_num_fields(_result);
+	//unsigned long *lengths = mysql_fetch_lengths(_result);
+
 	for (unsigned int i = 0; i < numberOfFields; i++) {
 		MYSQL_FIELD *field = mysql_fetch_field_direct(_result, i);
-		// TODO: You cannot treat these as null-terminated strings if
-		// field values may contain binary data, because such values may
-		// contain null bytes internally
-		_row[field->name] = static_cast<string>(row[i]);
+		if (field->flags & BINARY_FLAG) {
+			//Binary data(reinterpret_cast<unsigned char*>(row[i]), lengths[i]);
+			//_row[field->name] = data;
+
+			if (row[i] != NULL) {
+				_row[field->name] = static_cast<string>(row[i]);
+			} else {
+				_row[field->name] = string("");
+			}
+
+		} else if (field->flags & NUM_FLAG) {
+			if (row[i] != NULL) {
+				_row[field->name] = boost::lexical_cast<int>(row[i]);
+			} else {
+				_row[field->name] = 0;
+			}
+
+		} else {
+			if (row[i] != NULL) {
+				_row[field->name] = static_cast<string>(row[i]);
+			} else {
+				_row[field->name] = string("");
+			}
+		}
 	}
 
 	return true;
 }
 
-string MySqlResult::get(const string &key) const
+boost::any MySqlResult::get(const string &key) const
 {
 	auto result = _row.find(key);
 	if (result == _row.end()) {

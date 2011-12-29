@@ -21,8 +21,8 @@
 #include <map>
 #include <memory>
 
+#include <boost/any.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySql.hpp>
@@ -32,7 +32,8 @@ using std::list;
 using std::map;
 using std::shared_ptr;
 
-using boost::lexical_cast;
+using boost::any;
+using boost::any_cast;
 using boost::posix_time::ptime;
 using boost::posix_time::time_from_string;
 
@@ -110,7 +111,10 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	while (result->fetch()) {
 		int id = result->get<int>("id");
 		string value = result->get<string>("value");
-		ptime date = result->get<ptime>("date", time_from_string);
+		ptime date = result->get<ptime>("date", [](const any &value) {
+				string strValue = any_cast<string>(value);
+				return time_from_string(strValue);
+			});
 
 		BOOST_CHECK_EQUAL(id, 1);
 		BOOST_CHECK_EQUAL(value, "This is a test");
@@ -142,11 +146,11 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
 
 	while (result->fetch()) {
-		auto object = result->get<Object>([](map<string, string> row) {
+		auto object = result->get<Object>([](map<string, any> row) {
 				Object object;
-				object.id = lexical_cast<int>(row["id"]);
-				object.value = row["value"];
-				object.date = time_from_string(row["date"]);
+				object.id = any_cast<int>(row["id"]);
+				object.value = any_cast<string>(row["value"]);
+				object.date = time_from_string(any_cast<string>(row["date"]));
 				return object;
 			});
 
@@ -185,11 +189,11 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 
 	BOOST_CHECK_EQUAL(result->size(), 2);
 
-	list<Object> objects = result->getAll<Object>([](map<string, string> row) {
+	list<Object> objects = result->getAll<Object>([](map<string, any> row) {
 			Object object;
-			object.id = lexical_cast<int>(row["id"]);
-			object.value = row["value"];
-			object.date = time_from_string(row["date"]);
+			object.id = any_cast<int>(row["id"]);
+			object.value = any_cast<string>(row["value"]);
+			object.date = time_from_string(any_cast<string>(row["date"]));
 			return object;
 		});
 

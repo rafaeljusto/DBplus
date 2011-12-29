@@ -17,47 +17,26 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __DB_PLUS_RESULT_HPP__
-#define __DB_PLUS_RESULT_HPP__
-
-#include <string>
-
-#include <boost/any.hpp>
+#ifndef __DB_PLUS_BINARY_HPP__
+#define __DB_PLUS_BINARY_HPP__
 
 #include <dbplus/Dbplus.hpp>
 
-using std::string;
-
 DBPLUS_NS_BEGIN
 
-/*! \class Result
- *  \brief Store result of database queries (interface).
- *
- * Base class to store results of a database query.
- */
-class Result
+class Binary
 {
 public:
-	/*! Returns the number of rows found in result.
-	 *
-	 * @return Number of rows in result
-	 */
-	virtual unsigned int size() const = 0;
+	Binary(const unsigned char *data, const unsigned long dataSize);
 
-	/*! Move to the next row.
-	 *
-	 * @return True if there's a next row, false otherwise
-	 */
-	virtual bool fetch() = 0;
+	unsigned char* getData() const;
+	unsigned long getDataSize() const;
 
-	/*! Returns the value of a given column name.
-	 *
-	 * @param key Column name
-	 * @return column Value in the current row
-	 */
-	virtual boost::any get(const string &key) const = 0;
+private:
+	unsigned char *_data;
+	unsigned long _dataSize;
 };
 
 DBPLUS_NS_END
 
-#endif // __DB_PLUS_RESULT_HPP__
+#endif // __DB_PLUS_BINARY_HPP__

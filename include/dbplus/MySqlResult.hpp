@@ -70,7 +70,7 @@ public:
 	 * @return column Value in the current row
 	 * @throw DatabaseException on error
 	 */
-	string get(const string &key) const;
+	boost::any get(const string &key) const;
 	
 	/*! Find and convert the column data into some type.
 	 *
@@ -81,8 +81,8 @@ public:
 	 * @throw DatabaseException on error
 	 */
 	template<class T> 
-	T get(const string &key, T (*converter)(const string&) = 
-	      boost::lexical_cast<T>) const
+	T get(const string &key, T (*converter)(const boost::any&) = 
+	      boost::any_cast<T>) const
 	{
 		return converter(get(key));
 	}
@@ -95,7 +95,7 @@ public:
 	 * @throw DatabaseException on error
 	 */
 	template<class T> 
-	T get(T (*converter)(std::map<string, string>)) const
+	T get(T (*converter)(std::map<string, boost::any>)) const
 	{
 		return converter(_row);
 	}
@@ -108,7 +108,7 @@ public:
 	 * @throw DatabaseException on error
 	 */
 	template<class T> 
-	std::list<T> getAll(T (*converter)(std::map<string, string>))
+	std::list<T> getAll(T (*converter)(std::map<string, boost::any>))
 	{
 		std::list<T> results;
 		
@@ -121,7 +121,7 @@ public:
 
 private:
 	MYSQL_RES *_result;
-	std::map<string, string> _row;
+	std::map<string, boost::any> _row;
 };
 
 DBPLUS_NS_END

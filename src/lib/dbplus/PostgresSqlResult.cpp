@@ -61,7 +61,7 @@ bool PostgresSqlResult::fetch()
 	return true;
 }
 
-string PostgresSqlResult::get(const string &key) const
+boost::any PostgresSqlResult::get(const string &key) const
 {
 	auto result = _row.find(key);
 	if (result == _row.end()) {
