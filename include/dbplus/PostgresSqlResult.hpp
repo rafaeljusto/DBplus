@@ -61,6 +61,7 @@ public:
 	/*! Move to the next row.
 	 *
 	 * @return True if there's a next row, false otherwise
+	 * @todo Store result according to the column type
 	 */
 	bool fetch();
 	

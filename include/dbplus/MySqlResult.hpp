@@ -61,6 +61,7 @@ public:
 	/*! Move to the next row.
 	 *
 	 * @return True if there's a next row, false otherwise
+	 * @todo Store all column types to the respective C++ types
 	 */
 	bool fetch();
 	

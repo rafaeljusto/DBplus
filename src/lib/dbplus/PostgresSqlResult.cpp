@@ -54,6 +54,9 @@ bool PostgresSqlResult::fetch()
 
 	unsigned int numberOfFields = PQnfields(_result);
 	for (unsigned int i = 0; i < numberOfFields; i++) {
+		// TODO: Store result according to the column type
+		//Oid type = PQftype(_result, i);
+
 		_row[PQfname(_result, i)] = 
 			static_cast<string>(PQgetvalue(_result, _currentRow, i));
 	}

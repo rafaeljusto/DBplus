@@ -112,7 +112,9 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	BOOST_CHECK_EQUAL(result->size(), 1);
 
 	while (result->fetch()) {
-		int id = result->get<int>("id");
+		long id = result->get<long>("id", [](const any &data) {
+				return lexical_cast<long>(any_cast<string>(data));
+			});
 		string value = result->get<string>("value");
 		ptime date = result->get<ptime>("date", [](const any &data) {
 				return time_from_string(any_cast<string>(data));
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 	public:
 		Object() : id(0), value("") {}
 
-		int id;
+		long id;
 		string value;
 		ptime date;
 	};
@@ -150,7 +152,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 	while (result->fetch()) {
 		auto object = result->get<Object>([](map<string, any> row) {
 				Object object;
-				object.id = any_cast<int>(row["id"]);
+				object.id = lexical_cast<long>(any_cast<string>(row["id"]));
 				object.value = any_cast<string>(row["value"]);
 				object.date = time_from_string(any_cast<string>(row["date"]));
 				return object;
@@ -180,7 +182,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 	public:
 		Object() : id(0), value("") {}
 
-		int id;
+		long id;
 		string value;
 		ptime date;
 	};
@@ -193,7 +195,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 
 	list<Object> objects = result->getAll<Object>([](map<string, any> row) {
 			Object object;
-			object.id = any_cast<int>(row["id"]);
+			object.id = lexical_cast<long>(any_cast<string>(row["id"]));
 			object.value = any_cast<string>(row["value"]);
 			object.date = time_from_string(any_cast<string>(row["date"]));
 			return object;

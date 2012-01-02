@@ -17,6 +17,10 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdint>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <dbplus/Binary.hpp>
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySqlResult.hpp>
@@ -48,33 +52,88 @@ bool MySqlResult::fetch()
 	}
 
 	unsigned int numberOfFields = mysql_num_fields(_result);
-	//unsigned long *lengths = mysql_fetch_lengths(_result);
+	unsigned long *lengths = mysql_fetch_lengths(_result);
 
 	for (unsigned int i = 0; i < numberOfFields; i++) {
+		if (row[i] == NULL) {
+			continue;
+		}
+
 		MYSQL_FIELD *field = mysql_fetch_field_direct(_result, i);
-		if (field->flags & BINARY_FLAG) {
-			//Binary data(reinterpret_cast<unsigned char*>(row[i]), lengths[i]);
-			//_row[field->name] = data;
 
-			if (row[i] != NULL) {
-				_row[field->name] = static_cast<string>(row[i]);
-			} else {
-				_row[field->name] = string("");
-			}
-
-		} else if (field->flags & NUM_FLAG) {
-			if (row[i] != NULL) {
-				_row[field->name] = boost::lexical_cast<int>(row[i]);
-			} else {
-				_row[field->name] = 0;
-			}
-
-		} else {
-			if (row[i] != NULL) {
-				_row[field->name] = static_cast<string>(row[i]);
-			} else {
-				_row[field->name] = string("");
-			}
+		switch (field->type) {
+		case MYSQL_TYPE_TINY:
+			_row[field->name] = boost::lexical_cast<uint8_t>(row[i]);
+			break;
+		case MYSQL_TYPE_SHORT:
+			_row[field->name] = boost::lexical_cast<short>(row[i]);
+			break;
+		case MYSQL_TYPE_LONG:
+			_row[field->name] = boost::lexical_cast<long>(row[i]);
+			break;
+		case MYSQL_TYPE_INT24:
+			_row[field->name] = boost::lexical_cast<uint32_t>(row[i]);
+			break;
+		case MYSQL_TYPE_LONGLONG:
+			_row[field->name] = boost::lexical_cast<long long>(row[i]);
+			break;
+		case MYSQL_TYPE_DECIMAL:
+			// TODO
+			break;
+		case MYSQL_TYPE_NEWDECIMAL:
+			// TODO
+			break;
+		case MYSQL_TYPE_FLOAT:
+			_row[field->name] = boost::lexical_cast<float>(row[i]);
+			break;
+		case MYSQL_TYPE_DOUBLE:
+			_row[field->name] = boost::lexical_cast<double>(row[i]);
+			break;
+		case MYSQL_TYPE_BIT:
+			// TODO
+			break;
+		case MYSQL_TYPE_TIMESTAMP:
+			// TODO
+			break;
+		case MYSQL_TYPE_DATE:
+			// TODO
+			break;
+		case MYSQL_TYPE_NEWDATE:
+			// TODO
+			break;
+		case MYSQL_TYPE_TIME:
+			// TODO
+			break;
+		case MYSQL_TYPE_DATETIME:
+			_row[field->name] = boost::posix_time::time_from_string(row[i]);
+			break;
+		case MYSQL_TYPE_YEAR:
+			_row[field->name] = boost::lexical_cast<int>(row[i]);
+			break;
+		case MYSQL_TYPE_STRING:
+		case MYSQL_TYPE_VAR_STRING:
+		case MYSQL_TYPE_VARCHAR:
+			_row[field->name] = static_cast<string>(row[i]);
+			break;
+		case MYSQL_TYPE_TINY_BLOB:
+		case MYSQL_TYPE_MEDIUM_BLOB:
+		case MYSQL_TYPE_LONG_BLOB:
+		case MYSQL_TYPE_BLOB:
+			_row[field->name] =
+				Binary(reinterpret_cast<unsigned char*>(row[i]), lengths[i]);;
+			break;
+		case MYSQL_TYPE_SET:
+			// TODO
+			break;
+		case MYSQL_TYPE_ENUM:
+			// TODO
+			break;
+		case MYSQL_TYPE_GEOMETRY:
+			// TODO
+			break;
+		case MYSQL_TYPE_NULL:
+			// TODO
+			break;
 		}
 	}
 
