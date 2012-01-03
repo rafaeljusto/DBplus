@@ -28,24 +28,66 @@ using std::string;
 
 DBPLUS_NS_BEGIN
 
+/*! \class Binary
+ *  \brief Container to store data/size
+ *
+ * Class to store binary data.
+ */
 class Binary
 {
 public:
-	Binary(const unsigned char *data, const unsigned long dataSize);
+	/*! Constructor.
+	 *
+	 * @param data Binary data
+	 * @param size Binary data size
+	 */
+	Binary(const unsigned char *data, const unsigned long size);
+
+	/*! Constructor. Used to create a binary data from a string.
+	 *
+	 * @param data Binary data
+	 */
 	Binary(const string &data);
+
+	/*! Copy constructor.
+	 *
+	 * @param binary Other Binary object
+	 */
 	Binary(const Binary &binary);
 
+	/*! Destructor. Free internal array.
+	 */
 	~Binary();
 
+	/*! Assignment operator. Used to copy another Binary object.
+	 *
+	 * @param binary Other Binary object
+	 * @return The current Binary object
+	 */
 	Binary& operator=(const Binary &binary);
+
+	/*! Compare two Binary objects
+	 *
+	 * @param binary Other Binary object
+	 * @return True if the Binary objects are equal or false otherwise
+	 */
 	bool operator==(const Binary &binary) const;
 
+	/*! Returns internal data array
+	 *
+	 * @return Internal data array
+	 */
 	unsigned char* getData() const;
-	unsigned long getDataSize() const;
+
+	/*! Returns internal data array size
+	 *
+	 * @return Internal data array size
+	 */
+	unsigned long getSize() const;
 
 private:
 	unsigned char *_data;
-	unsigned long _dataSize;
+	unsigned long _size;
 };
 
 DBPLUS_NS_END

@@ -23,25 +23,25 @@
 
 DBPLUS_NS_BEGIN
 
-Binary::Binary(const unsigned char *data, const unsigned long dataSize) :
+Binary::Binary(const unsigned char *data, const unsigned long size) :
 	_data(0),
-	_dataSize(dataSize)
+	_size(size)
 {
-	_data = new unsigned char[_dataSize];
-	memcpy(_data, data, dataSize);
+	_data = new unsigned char[_size];
+	memcpy(_data, data, size);
 }
 
 Binary::Binary(const string &data) :
 	_data(0),
-	_dataSize(data.size())
+	_size(data.size())
 {
-	_data = new unsigned char[_dataSize];
+	_data = new unsigned char[_size];
 	memcpy(_data, data.c_str(), data.size());
 }
 
 Binary::Binary(const Binary &binary) :
 	_data(0),
-	_dataSize(0)
+	_size(0)
 {
 	*this = binary;
 }
@@ -55,20 +55,20 @@ Binary& Binary::operator=(const Binary &binary)
 {
 	delete[] _data;
 
-	_dataSize = binary._dataSize;
-	_data = new unsigned char[_dataSize];
-	memcpy(_data, binary._data, binary._dataSize);
+	_size = binary._size;
+	_data = new unsigned char[_size];
+	memcpy(_data, binary._data, binary._size);
 
 	return *this;
 }
 
 bool Binary::operator==(const Binary &binary) const
 {
-	if (_dataSize != binary._dataSize) {
+	if (_size != binary._size) {
 		return false;
 	}
 
-	for (unsigned long i = 0; i < _dataSize; i++) {
+	for (unsigned long i = 0; i < _size; i++) {
 		if (_data[i] != binary._data[i]) {
 			return false;
 		}
@@ -82,9 +82,9 @@ unsigned char* Binary::getData() const
 	return _data;
 }
 
-unsigned long Binary::getDataSize() const
+unsigned long Binary::getSize() const
 {
-	return _dataSize;
+	return _size;
 }
 
 DBPLUS_NS_END
