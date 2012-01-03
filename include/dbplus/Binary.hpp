@@ -20,7 +20,11 @@
 #ifndef __DB_PLUS_BINARY_HPP__
 #define __DB_PLUS_BINARY_HPP__
 
+#include <string>
+
 #include <dbplus/Dbplus.hpp>
+
+using std::string;
 
 DBPLUS_NS_BEGIN
 
@@ -28,6 +32,13 @@ class Binary
 {
 public:
 	Binary(const unsigned char *data, const unsigned long dataSize);
+	Binary(const string &data);
+	Binary(const Binary &binary);
+
+	~Binary();
+
+	Binary& operator=(const Binary &binary);
+	bool operator==(const Binary &binary) const;
 
 	unsigned char* getData() const;
 	unsigned long getDataSize() const;

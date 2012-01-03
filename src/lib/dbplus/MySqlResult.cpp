@@ -63,7 +63,7 @@ bool MySqlResult::fetch()
 
 		switch (field->type) {
 		case MYSQL_TYPE_TINY:
-			_row[field->name] = boost::lexical_cast<uint8_t>(row[i]);
+			_row[field->name] = (uint8_t) boost::lexical_cast<int>(row[i]);
 			break;
 		case MYSQL_TYPE_SHORT:
 			_row[field->name] = boost::lexical_cast<short>(row[i]);
@@ -72,7 +72,7 @@ bool MySqlResult::fetch()
 			_row[field->name] = boost::lexical_cast<long>(row[i]);
 			break;
 		case MYSQL_TYPE_INT24:
-			_row[field->name] = boost::lexical_cast<uint32_t>(row[i]);
+			_row[field->name] = (uint32_t) boost::lexical_cast<int>(row[i]);
 			break;
 		case MYSQL_TYPE_LONGLONG:
 			_row[field->name] = boost::lexical_cast<long long>(row[i]);

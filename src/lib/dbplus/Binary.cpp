@@ -27,7 +27,54 @@ Binary::Binary(const unsigned char *data, const unsigned long dataSize) :
 	_data(0),
 	_dataSize(dataSize)
 {
+	_data = new unsigned char[_dataSize];
 	memcpy(_data, data, dataSize);
+}
+
+Binary::Binary(const string &data) :
+	_data(0),
+	_dataSize(data.size())
+{
+	_data = new unsigned char[_dataSize];
+	memcpy(_data, data.c_str(), data.size());
+}
+
+Binary::Binary(const Binary &binary) :
+	_data(0),
+	_dataSize(0)
+{
+	*this = binary;
+}
+
+Binary::~Binary()
+{
+	delete[] _data;
+}
+
+Binary& Binary::operator=(const Binary &binary)
+{
+	delete[] _data;
+
+	_dataSize = binary._dataSize;
+	_data = new unsigned char[_dataSize];
+	memcpy(_data, binary._data, binary._dataSize);
+
+	return *this;
+}
+
+bool Binary::operator==(const Binary &binary) const
+{
+	if (_dataSize != binary._dataSize) {
+		return false;
+	}
+
+	for (unsigned long i = 0; i < _dataSize; i++) {
+		if (_data[i] != binary._data[i]) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 unsigned char* Binary::getData() const

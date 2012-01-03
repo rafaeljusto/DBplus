@@ -24,6 +24,7 @@
 #include <boost/any.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <dbplus/Binary.hpp>
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySql.hpp>
 #include <dbplus/MySqlResult.hpp>
@@ -37,6 +38,7 @@ using boost::any_cast;
 using boost::posix_time::ptime;
 using boost::posix_time::time_from_string;
 
+using dbplus::Binary;
 using dbplus::DatabaseException;
 using dbplus::MySql;
 using dbplus::MySqlResult;
@@ -248,6 +250,94 @@ BOOST_AUTO_TEST_CASE(mustCommitData)
 		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
 
 	BOOST_CHECK_EQUAL(result->size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(mustRetrieveAllKindsOfData)
+{
+	MySql mysql;
+	mysql.connect("dbplus", "root", "abc123", "127.0.0.1");
+
+	string sql = "DROP TABLE IF EXISTS test";
+	mysql.execute(sql);
+
+	// Unsupported fields for now: BIT, BOOLEAN, DECIMAL, DATE,
+	// TIMESTAMP, TIME, ENUM, SET
+
+	sql = "CREATE TABLE test ("
+		"value1 TINYINT, "
+		"value2 SMALLINT, "
+		"value3 MEDIUMINT, "
+		"value4 INT, "
+		"value5 BIGINT, "
+		"value6 FLOAT, "
+		"value7 DOUBLE, "
+		"value8 DATETIME, "
+		"value9 YEAR, "
+		"value10 VARCHAR(255), "
+		"value11 TINYBLOB, "
+		"value12 BLOB, "
+		"value13 MEDIUMBLOB, "
+		"value14 LONGBLOB) ENGINE=InnoDB";
+	mysql.execute(sql);
+
+	sql = "INSERT INTO test (value1, value2, value3, value4, value5, value6, "
+		"value7, value8, value9, value10, value11, value12, value13, value14) "
+		"VALUES ("
+		"100, "
+		"1000, "
+		"10000, "
+		"100000, "
+		"1000000, "
+		"1.00000001, "
+		"1.0000001, "
+		"'2012-01-03 11:00:00', "
+		"2012, "
+		"'Test', "
+		"'This is a blob', "
+		"'This is another blob', "
+		"'One more blob', "
+		"'The last blob')";
+	mysql.execute(sql);
+
+	sql = "SELECT value1, value2, value3, value4, value5, value6, "
+		"value7, value8, value9, value10, value11, value12, value13, value14 "
+		"FROM test";
+	shared_ptr<MySqlResult> result =
+		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+
+	BOOST_CHECK_EQUAL(result->size(), 1);
+
+	while (result->fetch()) {
+		uint8_t value1 = result->get<uint8_t>("value1");
+		short value2 = result->get<short>("value2");
+		uint32_t value3 = result->get<uint32_t>("value3");
+		long value4 = result->get<long>("value4");
+		long long value5 = result->get<long long>("value5");
+		float value6 = result->get<float>("value6");
+		double value7 = result->get<double>("value7");
+		ptime value8 = result->get<ptime>("value8");
+		int value9 = result->get<int>("value9");
+		string value10 = result->get<string>("value10");
+		Binary value11 = result->get<Binary>("value11");
+		Binary value12 = result->get<Binary>("value12");
+		Binary value13 = result->get<Binary>("value13");
+		Binary value14 = result->get<Binary>("value14");
+
+		BOOST_CHECK_EQUAL(value1, static_cast<uint8_t>(100));
+		BOOST_CHECK_EQUAL(value2, static_cast<short>(1000));
+		BOOST_CHECK_EQUAL(value3, static_cast<uint32_t>(10000));
+		BOOST_CHECK_EQUAL(value4, static_cast<long>(100000));
+		BOOST_CHECK_EQUAL(value5, static_cast<long long>(1000000));
+		BOOST_CHECK_EQUAL(value6, static_cast<float>(1.00000001));
+		BOOST_CHECK_EQUAL(value7, static_cast<double>(1.0000001));
+		BOOST_CHECK_EQUAL(value8, time_from_string("2012-01-03 11:00:00"));
+		BOOST_CHECK_EQUAL(value9, 2012);
+		BOOST_CHECK_EQUAL(value10, "Test");
+		BOOST_CHECK(value11 == Binary(string("This is a blob")));
+		BOOST_CHECK(value12 == Binary(string("This is another blob")));
+		BOOST_CHECK(value13 == Binary(string("One more blob")));
+		BOOST_CHECK(value14 == Binary(string("The last blob")));
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
