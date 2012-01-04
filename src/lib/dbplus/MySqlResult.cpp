@@ -22,7 +22,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <dbplus/Binary.hpp>
-#include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySqlResult.hpp>
 
 DBPLUS_NS_BEGIN
