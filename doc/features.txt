@@ -1,0 +1,73 @@
+License
+-------
+
+  DBplus Copyright (C) 2012 Rafael Dantas Justo
+
+  This file is part of DBplus.
+
+  DBplus is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  DBplus is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
+
+Project
+-------
+
+  The DBplus was created in November, 2011 as an auxiliary tool for a
+  WEB framework project. In the same month the DBplus project was
+  created and all related code was migrated. The purpose is to create
+  an API interface initially to two database clients (MySQL and
+  PostgreSQL).
+
+  After five years working with an API that created a lot of manual
+  work, the decision to create a new API was to think in a design for
+  ease use and flexibility for different database clients.
+
+How It Works?
+-------------
+
+  [TODO]
+
+Features
+--------
+
+  [TODO]
+
+MySQL notes
+-----------
+
+While using MySQL in this API, you must remember that the type of the
+column in MySQL database will be mapped to a specific type in
+C++. This is important when you are retrieving a data after a SELECT
+command. Check out the following table to see what column is mapped to
+what type.
+
+ ----------------------------------------------
+| MySQL Column Type | C++ Type                 |
+ ----------------------------------------------
+| TINYINT           | uint8_t                  |
+| SMALLINT          | short                    |
+| MEDIUMINT         | uint32_t                 |
+| INT               | long                     |
+| BIGINT            | long long                |
+| FLOAT             | float                    |
+| DOUBLE            | double                   |
+| DATETIME          | boost::posix_time::ptime |
+| YEAR              | int                      |
+| VARCHAR           | std::string              |
+| TINYBLOB          | dbplus::Binary           |
+| BLOB              | dbplus::Binary           |
+| MEDIUMBLOB        | dbplus::Binary           |
+| LONGBLOB          | dbplus::Binary           |
+ ----------------------------------------------
+
+The types BIT, BOOLEAN, DECIMAL, DATE, TIMESTAMP, TIME, ENUM and SET
+are not mapped yet to any of the C++ types.
