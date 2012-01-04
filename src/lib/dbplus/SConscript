@@ -1,4 +1,4 @@
-# DBplus Copyright (C) 2011 Rafael Dantas Justo
+# DBplus Copyright (C) 2012 Rafael Dantas Justo
 #
 # This file is part of DBplus.
 #

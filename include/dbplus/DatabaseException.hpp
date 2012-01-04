@@ -1,5 +1,5 @@
 /*
-  DBplus Copyright (C) 2011 Rafael Dantas Justo
+  DBplus Copyright (C) 2012 Rafael Dantas Justo
 
   This file is part of DBplus.
 
@@ -44,6 +44,7 @@ public:
 	 */
 	enum Code {
 		CONNECTION_ERROR,
+		CONVERSION_ERROR,
 		EXECUTION_ERROR,
 		RESULT_ERROR,
 		STATE_CHANGE_ERROR,

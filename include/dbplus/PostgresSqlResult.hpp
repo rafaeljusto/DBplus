@@ -1,5 +1,5 @@
 /*
-  DBplus Copyright (C) 2011 Rafael Dantas Justo
+  DBplus Copyright (C) 2012 Rafael Dantas Justo
 
   This file is part of DBplus.
 
@@ -85,7 +85,13 @@ public:
 	T get(const string &key, T (*converter)(const boost::any&) = 
 	      boost::any_cast<T>) const
 	{
-		return converter(get(key));
+		try {
+			return converter(get(key));
+		} catch (boost::bad_any_cast) {
+			throw DATABASE_EXCEPTION(DatabaseException::CONVERSION_ERROR, 
+			                         "Conversion error. "
+			                         "Data is in a different format");
+		}
 	}
 
 	/*! Converts an entire line in one object.
