@@ -29,6 +29,7 @@ extern "C" {
 
 #include <boost/lexical_cast.hpp>
 
+#include <dbplus/DatabaseException.hpp>
 #include <dbplus/Dbplus.hpp>
 
 #include "Result.hpp"

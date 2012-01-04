@@ -51,8 +51,8 @@ Usage
     #include <memory>
     #include <string>
 
+    #include <boost/any.hpp>
     #include <boost/date_time/posix_time/posix_time.hpp>
-    #include <boost/lexical_cast.hpp>
 
     #include <dbplus/MySql.hpp>
     #include <dbplus/MySqlResult.hpp>
@@ -70,7 +70,7 @@ Usage
         std::cout << "Date: "  << _date  << std::endl;
       }
 
-      void setId(const int id)
+      void setId(const long id)
       {
         _id = id;
       }
@@ -86,7 +86,7 @@ Usage
       }
 
     private:
-      int _id;
+      long _id;
       std::string _value;
       boost::posix_time::ptime _date;
     };
@@ -101,11 +101,11 @@ Usage
         std::dynamic_pointer_cast<dbplus::MySqlResult>(mysql.execute(sql));
 
       std::list<Object> objects = 
-        result->getAll<Object>([](std::map<string, string> row) {
+        result->getAll<Object>([](std::map<string, boost::any> row) {
           Object object;
-          object.setId(boost::lexical_cast<int>(row["id"]));
-          object.setValue(row["value"]);
-          object.setDate(boost::posix_time::time_from_string(row["date"]));
+          object.setId(boost::any_cast<long>(row["id"]));
+          object.setValue(boost::any_cast<string>(row["value"]));
+          object.setDate(boost::any_cast<boost::posix_time::ptime>(row["date"]));
           return object;
         });
 
