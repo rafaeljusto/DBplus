@@ -24,6 +24,9 @@
 #include <dbplus/PostgresSqlResult.hpp>
 
 //#define SHOW_NOTICES
+#ifdef SHOW_NOTICES
+#include <iostream>
+#endif
 
 DBPLUS_NS_BEGIN
 
@@ -139,7 +142,11 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 		_affectedRows = boost::lexical_cast<unsigned int>(affectedRows);
 	}
 
-	// TODO: result mode
+	// TODO: Result mode. We can use cursor, but we neede to do it in a
+	// transaction and we must close the cursor after usage. How we are
+	// going to know where we close the cursor?
+	//
+	// http://www.postgresql.org/docs/8.0/static/libpq-example.html
 
 	return std::shared_ptr<Result>(new PostgresSqlResult(result));
 }
@@ -151,24 +158,21 @@ unsigned long long PostgresSql::affectedRows()
 
 unsigned long long PostgresSql::lastInsertedId()
 {
-	// TODO!
-	// http://archives.postgresql.org/pgsql-interfaces/2004-07/msg00035.php
+	string query = "SELECT lastval()";
+	std::shared_ptr<Result> result = execute(query);
 	
-	// Use currval:
-	// http://www.postgresql.org/docs/current/static/functions-sequence.html
-	
-	// OR
-	
-	// Use PQoidValue:
-	// http://www.postgresql.org/docs/8.2/static/libpq-exec.html
-	
-	return 0;
+	if (result->fetch() == false) {
+		return 0;
+	}
+
+	return boost::lexical_cast<unsigned long long>
+		(boost::any_cast<string>(result->get("lastval")));
 }
 
 void PostgresSql::noticeReceiver(void *arg, const PGresult *result)
 {
 #ifdef SHOW_NOTICES
-	printf("%s\n", PQresultErrorField(result, PG_DIAG_MESSAGE_PRIMARY));
+	std::cout << PQresultErrorField(result, PG_DIAG_MESSAGE_PRIMARY) << std::endl;
 #endif
 }
 

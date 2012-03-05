@@ -257,4 +257,23 @@ BOOST_AUTO_TEST_CASE(mustCommitData)
 	BOOST_CHECK_EQUAL(result->size(), 1);
 }
 
+BOOST_AUTO_TEST_CASE(mustRetrieveLastInsertedId)
+{
+	PostgresSql postgres;
+
+	BOOST_CHECK_NO_THROW(createDatabaseAndTable(postgres));
+
+	string sql = "INSERT INTO test(value, date) "
+		"VALUES ('This is a test', '2011-11-11 11:11:11')";
+	postgres.execute(sql);
+
+	BOOST_CHECK_EQUAL(postgres.lastInsertedId(), 1);
+
+	sql = "INSERT INTO test(value, date) "
+		"VALUES ('This is a test', '2011-11-11 11:11:11')";
+	postgres.execute(sql);
+
+	BOOST_CHECK_EQUAL(postgres.lastInsertedId(), 2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
