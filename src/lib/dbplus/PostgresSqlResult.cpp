@@ -17,14 +17,18 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/PostgresSqlResult.hpp>
 
 DBPLUS_NS_BEGIN
 
-PostgresSqlResult::PostgresSqlResult(PGresult *result) :
+PostgresSqlResult::PostgresSqlResult(PGresult *result,
+                                     const std::map<Oid, string> &types) :
 	_result(result),
-	_currentRow(-1)
+	_currentRow(-1),
+	_types(types)
 {
 }
 
@@ -54,11 +58,24 @@ bool PostgresSqlResult::fetch()
 
 	unsigned int numberOfFields = PQnfields(_result);
 	for (unsigned int i = 0; i < numberOfFields; i++) {
-		// TODO: Store result according to the column type
-		//Oid type = PQftype(_result, i);
+		Oid oid = PQftype(_result, i);
+		string value = static_cast<string>(PQgetvalue(_result, _currentRow, i));
 
-		_row[PQfname(_result, i)] = 
-			static_cast<string>(PQgetvalue(_result, _currentRow, i));
+		if (_types[oid] == "_varchar") {
+			_row[PQfname(_result, i)] = value;
+
+		} else if (_types[oid] == "_int4") {
+			_row[PQfname(_result, i)] = boost::lexical_cast<long>(value);
+
+		} else if (_types[oid] == "_int8") {
+			_row[PQfname(_result, i)] = boost::lexical_cast<long long>(value);
+
+		} else if (_types[oid] == "_timestamp") {
+			_row[PQfname(_result, i)] = boost::posix_time::time_from_string(value);
+
+		} else {
+			// TODO
+		}
 	}
 
 	return true;

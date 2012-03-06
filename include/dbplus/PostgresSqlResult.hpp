@@ -45,8 +45,12 @@ class PostgresSqlResult : public Result
 public:
 	/*! Constructor receives the raw postgreSQL structure already
 	 * containing the result.
+	 *
+	 * @param result Result set with the raw data
+	 * @param types List of know types
 	 */
-	explicit PostgresSqlResult(PGresult *result);
+	explicit PostgresSqlResult(PGresult *result,
+	                           const std::map<Oid, string> &types);
 
 	/*! Release memory from raw PostgreSQL structures.
 	 */
@@ -130,6 +134,7 @@ private:
 	PGresult *_result;
 	int _currentRow;
 	std::map<string, boost::any> _row;
+	std::map<Oid, string> _types;
 };
 
 DBPLUS_NS_END

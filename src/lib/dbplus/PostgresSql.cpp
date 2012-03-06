@@ -123,6 +123,8 @@ string PostgresSql::escape(const string &value)
 std::shared_ptr<Result> PostgresSql::execute(const string &query,
                                              const ResultMode::Value resultMode)
 {
+	buildTypesCache();
+
 	PGresult *result = PQexec(_postgres, query.c_str());
 	if (result == NULL) {
 		throw DATABASE_EXCEPTION(DatabaseException::RESULT_ERROR,
@@ -131,6 +133,7 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 
 	if (PQresultStatus(result) != PGRES_TUPLES_OK &&
 	    PQresultStatus(result) != PGRES_COMMAND_OK) {
+		PQclear(result);
 		throw DATABASE_EXCEPTION(DatabaseException::EXECUTION_ERROR,
 		                         PQresultErrorMessage(result));
 	}
@@ -148,7 +151,7 @@ std::shared_ptr<Result> PostgresSql::execute(const string &query,
 	//
 	// http://www.postgresql.org/docs/8.0/static/libpq-example.html
 
-	return std::shared_ptr<Result>(new PostgresSqlResult(result));
+	return std::shared_ptr<Result>(new PostgresSqlResult(result, _types));
 }
 
 unsigned long long PostgresSql::affectedRows()
@@ -165,8 +168,37 @@ unsigned long long PostgresSql::lastInsertedId()
 		return 0;
 	}
 
-	return boost::lexical_cast<unsigned long long>
-		(boost::any_cast<string>(result->get("lastval")));
+	return boost::any_cast<long long>(result->get("lastval"));
+}
+
+void PostgresSql::buildTypesCache()
+{
+	if (_types.empty() == false) {
+		return;
+	}
+
+	string query = "SELECT typelem, typname FROM pg_type";
+
+	PGresult *result = PQexec(_postgres, query.c_str());
+	if (result == NULL) {
+		throw DATABASE_EXCEPTION(DatabaseException::RESULT_ERROR,
+		                         PQerrorMessage(_postgres));
+	}
+
+	if (PQresultStatus(result) != PGRES_TUPLES_OK) {
+		PQclear(result);
+		throw DATABASE_EXCEPTION(DatabaseException::EXECUTION_ERROR,
+		                         PQresultErrorMessage(result));
+	}
+
+	for (int i = 0; i < PQntuples(result); i++) {
+		Oid oid = boost::lexical_cast<Oid>(PQgetvalue(result, i, 0));
+		string type = PQgetvalue(result, i, 1);
+
+		_types[oid] = type;
+	}
+
+	PQclear(result);
 }
 
 void PostgresSql::noticeReceiver(void *arg, const PGresult *result)

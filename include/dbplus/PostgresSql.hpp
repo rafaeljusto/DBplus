@@ -24,6 +24,8 @@ extern "C" {
 #include <postgresql/libpq-fe.h>
 }
 
+#include <map>
+
 #include <dbplus/Dbplus.hpp>
 
 #include "RelationalDatabase.hpp"
@@ -133,11 +135,13 @@ public:
 	unsigned long long lastInsertedId();
 
 private:
+	void buildTypesCache();
 	static void noticeReceiver(void *arg, const PGresult *result);
 
 	PGconn *_postgres;
 	TransactionMode::Value _transactionMode;
 	unsigned int _affectedRows;
+	std::map<Oid, string> _types;
 };
 
 DBPLUS_NS_END
