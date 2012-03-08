@@ -17,8 +17,8 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __DB_PLUS_RELATIONAL_DATABASE_HPP__
-#define __DB_PLUS_RELATIONAL_DATABASE_HPP__
+#ifndef __DB_PLUS_DATABASE_HPP__
+#define __DB_PLUS_DATABASE_HPP__
 
 #include <memory>
 #include <string>
@@ -31,12 +31,12 @@ DBPLUS_NS_BEGIN
 
 class Result;
 
-/*! \class RelationalDatabase
+/*! \class Database
  *  \brief Relational database interface.
  *
  * Base class to perform operations over a relational database.
  */
-class RelationalDatabase
+class Database
 {
 public:
 	/*! \class TransactionMode
@@ -96,14 +96,14 @@ public:
 	virtual void disconnect() = 0;
 
 	/*! Sets transaction mode. Possible values are defined in
-	 * RelationalDatabase::TransactionMode::Value.
+	 * Database::TransactionMode::Value.
 	 *
 	 * @param mode Transaction mode
 	 */
 	virtual void setTransactionMode(const TransactionMode::Value mode) = 0;
 
 	/*! Gets transaction mode. Possible values are defined in
-	 * RelationalDatabase::TransactionMode::Value.
+	 * Database::TransactionMode::Value.
 	 *
 	 * @return Transaction mode
 	 */

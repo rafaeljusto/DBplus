@@ -28,7 +28,7 @@ extern "C" {
 
 #include <dbplus/Dbplus.hpp>
 
-#include "RelationalDatabase.hpp"
+#include "Database.hpp"
 
 DBPLUS_NS_BEGIN
 
@@ -37,7 +37,7 @@ DBPLUS_NS_BEGIN
  *
  * Connect to PostgreSQL database.
  */
-class PostgresSql : public RelationalDatabase
+class PostgresSql : public Database
 {
 public:
 	/*! Default contructor. Nothing special here.
@@ -70,7 +70,7 @@ public:
 	void disconnect();
 
 	/*! Sets transaction mode. Possible values are defined in
-	 * RelationalDatabase::TransactionMode::Value.
+	 * Database::TransactionMode::Value.
 	 *
 	 * @param mode Transaction mode
 	 * @throw DatabaseException on error
@@ -78,7 +78,7 @@ public:
 	void setTransactionMode(const TransactionMode::Value mode);
 
 	/*! Gets transaction mode. Possible values are defined in
-	 * RelationalDatabase::TransactionMode::Value.
+	 * Database::TransactionMode::Value.
 	 *
 	 * @return Transaction mode
 	 */
