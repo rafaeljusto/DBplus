@@ -24,7 +24,6 @@ extern "C" {
 #include <postgresql/libpq-fe.h>
 }
 
-#include <list>
 #include <map>
 
 #include <boost/lexical_cast.hpp>

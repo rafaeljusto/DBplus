@@ -24,8 +24,6 @@ extern "C" {
 #include <mysql/mysql.h>
 }
 
-#include <list>
-
 #include <boost/lexical_cast.hpp>
 
 #include <dbplus/Dbplus.hpp>

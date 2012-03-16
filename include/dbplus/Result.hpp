@@ -20,6 +20,7 @@
 #ifndef __DB_PLUS_RESULT_HPP__
 #define __DB_PLUS_RESULT_HPP__
 
+#include <list>
 #include <map>
 #include <string>
 
