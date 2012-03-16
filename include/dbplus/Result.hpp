@@ -20,10 +20,12 @@
 #ifndef __DB_PLUS_RESULT_HPP__
 #define __DB_PLUS_RESULT_HPP__
 
+#include <map>
 #include <string>
 
 #include <boost/any.hpp>
 
+#include <dbplus/DatabaseException.hpp>
 #include <dbplus/Dbplus.hpp>
 
 using std::string;
@@ -56,6 +58,62 @@ public:
 	 * @return column Value in the current row
 	 */
 	virtual boost::any get(const string &key) const = 0;
+
+	/*! Find and convert the column data into some type.
+	 *
+	 * @tparam T Type of the data that is going to be returned
+	 * @param key Column name
+	 * @param converter Method that converts into the desired type
+	 * @return Column value in the desired format
+	 * @throw DatabaseException on error
+	 */
+	template<class T> 
+	T get(const string &key, T (*converter)(const boost::any&) = 
+	      boost::any_cast<T>) const
+	{
+		try {
+			return converter(get(key));
+		} catch (boost::bad_any_cast) {
+			throw DATABASE_EXCEPTION(DatabaseException::CONVERSION_ERROR, 
+			                         "Conversion error. "
+			                         "Data is in a different format");
+		}
+	}
+
+	/*! Converts an entire line in one object.
+	 *
+	 * @tparam T Type of the object that represents the result row
+	 * @param converter Method that converts into the desired type
+	 * @return Desired object that represents the result row
+	 * @throw DatabaseException on error
+	 */
+	template<class T> 
+	T get(T (*converter)(std::map<string, boost::any>)) const
+	{
+		return converter(_row);
+	}
+
+	/*! Converts all rows into a list of objects.
+	 *
+	 * @tparam T Type of the object that represents the result row
+	 * @param converter Method that converts into the desired type
+	 * @return List of the desired object that represents the result set
+	 * @throw DatabaseException on error
+	 */
+	template<class T> 
+	std::list<T> getAll(T (*converter)(std::map<string, boost::any>))
+	{
+		std::list<T> results;
+		
+		while(fetch()) {
+			results.push_back(get<T>(converter));
+		}
+
+		return results;
+	}
+
+protected:
+	std::map<string, boost::any> _row;
 };
 
 DBPLUS_NS_END

@@ -27,7 +27,7 @@
 #include <dbplus/Binary.hpp>
 #include <dbplus/DatabaseException.hpp>
 #include <dbplus/MySql.hpp>
-#include <dbplus/MySqlResult.hpp>
+#include <dbplus/Result.hpp>
 
 using std::list;
 using std::map;
@@ -41,7 +41,7 @@ using boost::posix_time::time_from_string;
 using dbplus::Binary;
 using dbplus::DatabaseException;
 using dbplus::MySql;
-using dbplus::MySqlResult;
+using dbplus::Result;
 
 // When you need to run only one test, compile only this file with the
 // STAND_ALONE flag.
@@ -105,8 +105,7 @@ BOOST_AUTO_TEST_CASE(mustInsertAndSelectData)
 	BOOST_CHECK_EQUAL(mysql.affectedRows(), 1);
 
 	sql = "SELECT id, value, date FROM test";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	BOOST_CHECK_EQUAL(result->size(), 1);
 
@@ -141,8 +140,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildEachObject)
 	};
 
 	sql = "SELECT id, value, date FROM test";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	while (result->fetch()) {
 		auto object = result->get<Object>([](map<string, any> row) {
@@ -183,8 +181,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 	};
 
 	sql = "SELECT id, value, date FROM test ORDER BY id";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	BOOST_CHECK_EQUAL(result->size(), 2);
 
@@ -223,8 +220,7 @@ BOOST_AUTO_TEST_CASE(mustRollbackData)
 	BOOST_CHECK_NO_THROW(mysql.rollback());
 
 	sql = "SELECT id, value, date FROM test";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	BOOST_CHECK_EQUAL(result->size(), 0);
 }
@@ -246,8 +242,7 @@ BOOST_AUTO_TEST_CASE(mustCommitData)
 	BOOST_CHECK_NO_THROW(mysql.rollback());
 
 	sql = "SELECT id, value, date FROM test";
-	shared_ptr<MySqlResult> result = 
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	BOOST_CHECK_EQUAL(result->size(), 1);
 }
@@ -302,8 +297,7 @@ BOOST_AUTO_TEST_CASE(mustRetrieveAllKindsOfData)
 	sql = "SELECT value1, value2, value3, value4, value5, value6, "
 		"value7, value8, value9, value10, value11, value12, value13, value14 "
 		"FROM test";
-	shared_ptr<MySqlResult> result =
-		std::dynamic_pointer_cast<MySqlResult>(mysql.execute(sql));
+	shared_ptr<Result> result = mysql.execute(sql);
 
 	BOOST_CHECK_EQUAL(result->size(), 1);
 
