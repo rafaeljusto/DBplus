@@ -104,7 +104,9 @@ bool MySqlResult::fetch()
 			// TODO
 			break;
 		case MYSQL_TYPE_DATETIME:
-			_row[field->name] = boost::posix_time::time_from_string(row[i]);
+			try {
+				_row[field->name] = boost::posix_time::time_from_string(row[i]);
+			} catch (const boost::gregorian::bad_day_of_month &e) {}
 			break;
 		case MYSQL_TYPE_YEAR:
 			_row[field->name] = boost::lexical_cast<int>(row[i]);

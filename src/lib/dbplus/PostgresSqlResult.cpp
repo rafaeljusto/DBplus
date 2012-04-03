@@ -71,7 +71,9 @@ bool PostgresSqlResult::fetch()
 			_row[PQfname(_result, i)] = boost::lexical_cast<long long>(value);
 
 		} else if (_types[oid] == "_timestamp") {
-			_row[PQfname(_result, i)] = boost::posix_time::time_from_string(value);
+			try {
+				_row[PQfname(_result, i)] = boost::posix_time::time_from_string(value);
+			} catch (const boost::gregorian::bad_day_of_month &e) {}
 
 		} else {
 			// TODO
