@@ -136,8 +136,7 @@ private:
 	TransactionMode::Value _transactionMode;
 
 private:
-	// Don't allow copying the object. Low levels structures (MYSQL)
-	// don't support copies.
+	// Don't allow copying the object
 	MySql(const MySql &other);
 	MySql& operator=(const MySql &other);
 };

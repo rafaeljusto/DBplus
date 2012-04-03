@@ -142,6 +142,11 @@ private:
 	TransactionMode::Value _transactionMode;
 	unsigned int _affectedRows;
 	std::map<Oid, string> _types;
+
+private:
+	// Don't allow copying the object
+	PostgresSql(const PostgresSql &other);
+	PostgresSql& operator=(const PostgresSql &other);
 };
 
 DBPLUS_NS_END
