@@ -17,9 +17,9 @@
   along with DBplus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <list>
 #include <map>
 #include <memory>
+#include <vector>
 
 #include <boost/any.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -29,9 +29,9 @@
 #include <dbplus/MySql.hpp>
 #include <dbplus/Result.hpp>
 
-using std::list;
 using std::map;
 using std::shared_ptr;
+using std::vector;
 
 using boost::any;
 using boost::any_cast;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(mustSelectAndBuildAllObjects)
 
 	BOOST_CHECK_EQUAL(result->size(), 2);
 
-	list<Object> objects = result->getAll<Object>([](map<string, any> row) {
+	vector<Object> objects = result->getAll<Object>([](map<string, any> row) {
 			Object object;
 			object.id = any_cast<long>(row["id"]);
 			object.value = any_cast<string>(row["value"]);

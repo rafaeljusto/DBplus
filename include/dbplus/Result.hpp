@@ -20,9 +20,9 @@
 #ifndef __DB_PLUS_RESULT_HPP__
 #define __DB_PLUS_RESULT_HPP__
 
-#include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <boost/any.hpp>
 
@@ -102,9 +102,9 @@ public:
 	 * @throw DatabaseException on error
 	 */
 	template<class T> 
-	std::list<T> getAll(T (*converter)(std::map<string, boost::any>))
+	std::vector<T> getAll(T (*converter)(std::map<string, boost::any>))
 	{
-		std::list<T> results;
+		std::vector<T> results;
 		
 		while(fetch()) {
 			results.push_back(get<T>(converter));
