@@ -60,6 +60,8 @@ what type.
 | BIGINT            | long long                |
 | FLOAT             | float                    |
 | DOUBLE            | double                   |
+| DATE              | boost::gregorian::date   |
+| NEWDATE           | boost::gregorian::date   |
 | DATETIME          | boost::posix_time::ptime |
 | YEAR              | int                      |
 | VARCHAR           | std::string              |
@@ -69,5 +71,24 @@ what type.
 | LONGBLOB          | dbplus::Binary           |
  ----------------------------------------------
 
-The types BIT, BOOLEAN, DECIMAL, DATE, TIMESTAMP, TIME, ENUM and SET
-are not mapped yet to any of the C++ types.
+The types BIT, BOOLEAN, DECIMAL, TIMESTAMP, TIME, ENUM and SET are not
+mapped yet to any of the C++ types.
+
+PostgreSQL Notes
+----------------
+
+While using PostgreSQL in this API, you must remember that the type of
+the column in PostgreSQL database will be mapped to a specific type in
+C++. This is important when you are retrieving a data after a SELECT
+command. Check out the following table to see what column is mapped to
+what type.
+
+ ----------------------------------------------
+| Oid Type          | C++ Type                 |
+ ----------------------------------------------
+| _int4             | long                     |
+| _int8             | long long                |
+| _timestamp        | boost::posix_time::ptime |
+ ----------------------------------------------
+
+All other types are not mapped yet.
