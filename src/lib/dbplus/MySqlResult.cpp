@@ -19,7 +19,9 @@
 
 #include <cstdint>
 
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/exception/all.hpp>
 
 #include <dbplus/Binary.hpp>
 #include <dbplus/MySqlResult.hpp>
@@ -95,10 +97,14 @@ bool MySqlResult::fetch()
 			// TODO
 			break;
 		case MYSQL_TYPE_DATE:
-			// TODO
+			try {
+				_row[field->name] = boost::gregorian::from_string(row[i]);
+			} catch (const boost::exception &e) {}
 			break;
 		case MYSQL_TYPE_NEWDATE:
-			// TODO
+			try {
+				_row[field->name] = boost::gregorian::from_string(row[i]);
+			} catch (const boost::exception &e) {}
 			break;
 		case MYSQL_TYPE_TIME:
 			// TODO
@@ -106,7 +112,7 @@ bool MySqlResult::fetch()
 		case MYSQL_TYPE_DATETIME:
 			try {
 				_row[field->name] = boost::posix_time::time_from_string(row[i]);
-			} catch (const boost::gregorian::bad_day_of_month &e) {}
+			} catch (const boost::exception &e) {}
 			break;
 		case MYSQL_TYPE_YEAR:
 			_row[field->name] = boost::lexical_cast<int>(row[i]);
